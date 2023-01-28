@@ -60,11 +60,11 @@ class MyModel(tf.keras.Model):
 		states = None
 		next_char = tf.constant([seed])
 		result = [next_char]
-
+		
 		for n in range(length):
 			next_char, states = one_step_model.generate_one_step(next_char, states=states)
 			result.append(next_char)
-
+		
 		result = tf.strings.join(result)
 		print(result[0].numpy().decode('utf-8'), '\n\n' + '_'*80 + '\n')
 
@@ -88,15 +88,15 @@ class OneStep(tf.keras.Model):
 		self.model = model
 		self.chars_from_ids = chars_from_ids
 		self.ids_from_chars = ids_from_chars
-
+		
 		# Create a mask to prevent "[UNK]" from being generated.
 		skip_ids = self.ids_from_chars(['[UNK]'])[:, None]
 		sparse_mask = tf.SparseTensor(
 			# Put a -inf at each bad index.
 			values=[-float('inf')]*len(skip_ids),
-			indices=skip_ids,
-			# Match the shape to the vocabulary
-			dense_shape=[len(ids_from_chars.get_vocabulary())])
+					indices=skip_ids,
+					# Match the shape to the vocabulary
+					dense_shape=[len(ids_from_chars.get_vocabulary())])
 		self.prediction_mask = tf.sparse.to_dense(sparse_mask)
 
 	@tf.function
@@ -104,7 +104,7 @@ class OneStep(tf.keras.Model):
 		# Convert strings to token IDs.
 		input_chars = tf.strings.unicode_split(inputs, 'UTF-8')
 		input_ids = self.ids_from_chars(input_chars).to_tensor()
-
+		
 		# Run the model.
 		# predicted_logits.shape is [batch, char, next_char_logits]
 		predicted_logits, states = self.model(inputs=input_ids, states=states,
@@ -114,14 +114,14 @@ class OneStep(tf.keras.Model):
 		predicted_logits = predicted_logits/self.temperature
 		# Apply the prediction mask: prevent "[UNK]" from being generated.
 		predicted_logits = predicted_logits + self.prediction_mask
-
+		
 		# Sample the output logits to generate token IDs.
 		predicted_ids = tf.random.categorical(predicted_logits, num_samples=1)
 		predicted_ids = tf.squeeze(predicted_ids, axis=-1)
-
+		
 		# Convert from token ids to characters
 		predicted_chars = self.chars_from_ids(predicted_ids)
-
+		
 		# Return the characters and model state.
 		return predicted_chars, states
 
@@ -129,15 +129,15 @@ class OneStep(tf.keras.Model):
 def generate_dataset(start_index, stop_index, path_to_file = 'abstracts.txt'):
 	
 	text = open(path_to_file, 'r', encoding='utf-8').read()
-
+	
 	vocab = sorted(set(text))	
 	
 	CharMapping.ids_from_chars = tf.keras.layers.StringLookup(
 								vocabulary=list(vocab), mask_token=None)
-
+	
 	CharMapping.chars_from_ids = tf.keras.layers.StringLookup(
 			vocabulary=CharMapping.ids_from_chars.get_vocabulary(), invert=True, mask_token=None)
-
+	
 	vocab_size = len(CharMapping.ids_from_chars.get_vocabulary())
 	
 	
@@ -148,15 +148,15 @@ def generate_dataset(start_index, stop_index, path_to_file = 'abstracts.txt'):
 	
 	
 	all_ids = CharMapping.ids_from_chars(tf.strings.unicode_split(text, 'UTF-8'))
-
+	
 	ids_dataset = tf.data.Dataset.from_tensor_slices(all_ids)
-
+	
 	seq_length = SEQ_LENGTH
-
+	
 	sequences = ids_dataset.batch(seq_length+1, drop_remainder=True)
-
+	
 	dataset = sequences.map(split_input_target)
-
+	
 	dataset = (dataset
 				.shuffle(BUFFER_SIZE)
 				.batch(BATCH_SIZE, drop_remainder=True)
@@ -171,14 +171,14 @@ def prepare_new_model(vocab_size):
 				vocab_size=vocab_size,
 				embedding_dim=EMBEDDING_DIM,
 				rnn_units=RNN_UNITS)
-
+	
 	loss = tf.losses.SparseCategoricalCrossentropy(from_logits=True)
-
+	
 	model.compile(optimizer='adam', loss=loss)
 	
 	# decrease the learning rate
 	K.set_value(model.optimizer.learning_rate, LEARNING_RATE)
-
+	
 	return model
 
 
