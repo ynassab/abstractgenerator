@@ -1,6 +1,8 @@
 # arxiv-ml
-Article dataset provided courtesy of ArXiv (operated by Cornell University) on Kaggle under a CC0 Public Domain license.
+The original dataset was provided courtesy of ArXiv (operated by Cornell University) on Kaggle under a CC0 Public Domain license.
 https://www.kaggle.com/datasets/Cornell-University/arxiv
+
+For the purposes of this project, the dataset was cleaned and the abstracts data was amalgamated into a single TXT file which can be downloaded at https://yahianassab.com/download-arxiv-ml.html
 
 ## How the model was built
 The model here, for which the weights are saved in `./training_checkpoints_12/ckpt_20`, was trained for 240 epochs until the sparse categorical cross-entropy (SCC) loss converged to the second decimal place (or, more accurately, that the second demical place would remain static for at least 100 more epochs).
