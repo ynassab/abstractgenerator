@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<!-- jQuery for AJAX: HTTP to HTTPS -->
+<script src="https://code.jquery.com/jquery-latest.js"></script><html lang="en">
+<script src="abstractgenerator/scripts/abstractgenerator.js"></script>
+<script src="index/scripts/load_animations.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Allow Ajax to be used; upgrade HTTP to HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kalam&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kalam&display=swap" rel="stylesheet">
+
+    <link href="abstractgenerator/styles/style.css" rel="stylesheet">
+    <link href="abstractgenerator/styles/animations.css" rel="stylesheet">
+
+    <title>Abstract Generating AI</title>
+    <link rel="icon" type="image/x-icon" href="index/pictures/favicon.ico" />
+</head>
+
+<body>
+    <div id="yn-logo-container">
+        <a href="/projects" role="button">
+            <img id="yn-logo" src="index/pictures/favicon.png" />
+        </a>
+    </div>
+    <main class="phase-in">
+        <h1 id="title">Abstract Generator</h1>
+        <div id="seed-prompt-container" class="phase-in-delay-1">
+            <input id="seed-prompt" placeholder="Enter seed here...">
+            <button id="generate-button">
+                <span id="generate-button-icon-container">
+                    <img id="generate-button-icon" src="index/pictures/icons/send.svg" />
+                </span>
+                <span id="generate-button-label">Generate</span>
+            </button>
+        </div>
+        <div id="response-output-container">
+            <div id="loading-dot-container">
+                <div class="loading-dot" id="loading-dot-1"></div>
+                <div class="loading-dot" id="loading-dot-2"></div>
+                <div class="loading-dot" id="loading-dot-3"></div>
+            </div>
+            <p id="response-output"></p>
+        </div>
+    </main>
+</body>
+</html>
