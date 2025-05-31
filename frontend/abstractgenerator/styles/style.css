@@ -117,20 +117,9 @@ main {
     background-color: var(--base-color-1);
 }
 
-#generate-button-icon-container {
-    width: 100%;
-}
-
-#generate-button-icon {
-    width: max(31px, 40%);
-}
-
 @media only screen and (min-width: 730px) {
     #generate-button {
         padding: 1rem;
-    }
-    #generate-button-icon-container {
-        display: none;
     }
     #generate-button-text-label {
         display: inline-block;
@@ -140,9 +129,6 @@ main {
 @media only screen and (max-width: 729.9px) {
     #generate-button {
         padding: 0.5rem;
-    }
-    #generate-button-icon-container {
-        display: inline-block;
     }
     #generate-button-label {
         display: none;
