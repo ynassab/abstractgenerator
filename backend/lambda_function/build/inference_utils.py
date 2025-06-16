@@ -16,7 +16,21 @@ LEARNING_RATE = 0.0001
 SEQ_LENGTH = 500
 
 def set_new_checkpoint_callback(checkpoint_dir):
-    # Force me to set the checkpoint_dir each time to avoid overwriting
+    """
+    Creates a ModelCheckpoint callback for saving model weights during training.
+
+    Args:
+        checkpoint_dir (str): Directory path where checkpoints will be saved.
+                              Each checkpoint will be saved as 'ckpt_{epoch}' where
+                              epoch is automatically set during training.
+
+    Returns:
+        tf.keras.callbacks.ModelCheckpoint: Configured checkpoint callback that saves
+                                            weights only at the end of each epoch.
+    """
+    # The {epoch} placeholder is automatically formatted by ModelCheckpoint
+    # when the callback is used in model.fit(). The fit() method passes the
+    # current epoch number to the callback, which substitutes it into the filename.
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt_{epoch}')
     checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
                 filepath=checkpoint_prefix,
@@ -25,17 +39,59 @@ def set_new_checkpoint_callback(checkpoint_dir):
 
 
 def split_input_target(sequence):
+    """
+    Splits a sequence into input and target sequences for next-character prediction.
+
+    Args:
+        sequence (tf.Tensor): Input sequence of character IDs with shape [seq_length + 1].
+
+    Returns:
+        tuple: A tuple containing:
+            - input_text (tf.Tensor): Input sequence [:-1] for training
+            - target_text (tf.Tensor): Target sequence [1:] for prediction
+
+    Example:
+        If sequence = [1, 2, 3, 4, 5], then:
+        input_text = [1, 2, 3, 4]
+        target_text = [2, 3, 4, 5]
+    """
     input_text = sequence[:-1]
     target_text = sequence[1:]
     return input_text, target_text
 
 
 class CharMapping():
+    """
+    Static container class for character-to-ID mapping layers.
+
+    This class serves as a namespace to store the StringLookup layers
+    that convert between characters and integer IDs. The mapping layers
+    are set as class attributes during dataset generation.
+
+    Attributes:
+        ids_from_chars (tf.keras.layers.StringLookup): Maps characters to integer IDs
+        chars_from_ids (tf.keras.layers.StringLookup): Maps integer IDs to characters
+    """
     pass
 
 
 class MyModel(tf.keras.Model):
+    """
+    Character-level text generation model using GRU architecture.
+
+    This model implements a sequence-to-sequence architecture with:
+    - Embedding layer for character representations
+    - GRU layer for sequence modeling
+    - Dense layer for character prediction
+
+    Args:
+        vocab_size (int): Size of the character vocabulary
+        embedding_dim (int): Dimension of character embeddings
+        rnn_units (int): Number of units in the GRU layer
+    """
+
     def __init__(self, vocab_size, embedding_dim, rnn_units):
+        """Initialize the model layers."""
         super().__init__(self)
         self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
         self.gru = tf.keras.layers.GRU(rnn_units,
@@ -44,6 +100,19 @@ class MyModel(tf.keras.Model):
         self.dense = tf.keras.layers.Dense(vocab_size)
 
     def call(self, inputs, states=None, return_state=False, training=False):
+        """
+        Forward pass through the model.
+
+        Args:
+            inputs (tf.Tensor): Input sequence of character IDs
+            states (tf.Tensor, optional): Initial GRU states. Defaults to None.
+            return_state (bool): Whether to return the final GRU states. Defaults to False.
+            training (bool): Whether the model is in training mode. Defaults to False.
+
+        Returns:
+            tf.Tensor or tuple: Model predictions (logits over vocabulary).
+                                If return_state=True, returns (predictions, states).
+        """
         x = inputs
         x = self.embedding(x, training=training)
         if states is None:
@@ -57,6 +126,17 @@ class MyModel(tf.keras.Model):
             return x
 
     def generate_text(self, seed='Herein, we describe a new model for', length=1000, vocabulary=None):
+        """
+        Generate text using the trained model.
+
+        Args:
+            seed (str): Initial text to start generation. Defaults to 'Herein, we describe a new model for'.
+            length (int): Number of characters to generate. Defaults to 1000.
+            vocabulary (list, optional): Custom vocabulary list. If None, uses CharMapping. Defaults to None.
+
+        Returns:
+            str: Generated text string starting with the seed text.
+        """
         if vocabulary is None:
             ids_from_chars = CharMapping.ids_from_chars
             chars_from_ids = CharMapping.chars_from_ids
@@ -81,8 +161,30 @@ class MyModel(tf.keras.Model):
 
 
 class CustomTraining(MyModel):
+    """
+    Custom training wrapper for MyModel with custom training step implementation.
+
+    This class extends MyModel to provide a custom training step that manually
+    computes gradients and applies optimizer updates. Inherits all functionality
+    from MyModel while allowing for custom training behavior.
+    """
+
     @tf.function
     def train_step(self, inputs):
+        """
+        Custom training step implementation.
+
+        Args:
+            inputs (tuple): Tuple containing (input_batch, target_batch)
+
+        Returns:
+            dict: Dictionary containing the computed loss value
+
+        Note:
+            This method manually computes gradients using GradientTape
+            and applies them using the optimizer, providing more control
+            over the training process than the default Keras training loop.
+        """
         inputs, labels = inputs
         with tf.GradientTape() as tape:
             predictions = self(inputs, training=True)
@@ -93,7 +195,22 @@ class CustomTraining(MyModel):
 
 
 class OneStep(tf.keras.Model):
+    """
+    Single-step text generation model for efficient inference.
+
+    This model wraps a trained text generation model to enable efficient
+    character-by-character generation. It handles character tokenization,
+    prediction masking, and temperature-based sampling.
+
+    Args:
+        model (MyModel): Trained text generation model
+        chars_from_ids (tf.keras.layers.StringLookup): Layer to convert IDs to characters
+        ids_from_chars (tf.keras.layers.StringLookup): Layer to convert characters to IDs
+        temperature (float): Temperature parameter for sampling. Defaults to 1.0.
+    """
+
     def __init__(self, model, chars_from_ids, ids_from_chars, temperature=1.0):
+        """Initialize the one-step generation model."""
         super().__init__()
         self.temperature = temperature
         self.model = model
@@ -112,6 +229,26 @@ class OneStep(tf.keras.Model):
 
     @tf.function
     def generate_one_step(self, inputs, states=None):
+        """
+        Generate one character given input text and current model states.
+
+        Args:
+            inputs (tf.Tensor): Input text as string tensor
+            states (tf.Tensor, optional): Current GRU states. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing:
+                   - predicted_chars (tf.Tensor): Next predicted character
+                   - states (tf.Tensor): Updated model states
+
+        Note:
+            This method performs the following steps:
+            1. Convert input strings to character IDs
+            2. Run the model to get predictions
+            3. Apply temperature scaling and prediction masking
+            4. Sample the next character using categorical sampling
+            5. Convert back to character representation
+        """
         # Convert strings to token IDs.
         input_chars = tf.strings.unicode_split(inputs, 'UTF-8')
         input_ids = self.ids_from_chars(input_chars).to_tensor()
@@ -137,7 +274,43 @@ class OneStep(tf.keras.Model):
         return predicted_chars, states
 
 
-def generate_dataset(start_index, stop_index, path_to_file = 'abstracts.txt'):
+def generate_dataset(start_index, stop_index, path_to_file='abstracts.txt'):
+    """
+    Generate a TensorFlow dataset from a subset of a text file for incremental training.
+
+    This function creates manageable training batches by subdividing the total dataset
+    into smaller chunks that fit within hardware memory constraints. It loads only
+    a specified portion of the text file (e.g., 100M characters) for each training
+    iteration, enabling progressive training through the entire dataset.
+
+    Args:
+        start_index (int): Starting character index in the text file for this batch
+        stop_index (int): Ending character index in the text file for this batch
+        path_to_file (str): Path to the text file. Defaults to 'abstracts.txt'.
+
+    Returns:
+        tuple: A tuple containing:
+               - dataset (tf.data.Dataset): Preprocessed dataset with input/target pairs
+               - vocab_size (int): Size of the character vocabulary (constant across batches)
+
+    Note:
+        This function enables incremental training by:
+        1. Loading only a subset of the full text file (start_index:stop_index)
+        2. Creating character vocabulary from the ENTIRE file (for consistency)
+        3. Converting the text subset to character ID sequences
+        4. Creating overlapping sequences of length SEQ_LENGTH+1
+        5. Splitting sequences into input/target pairs
+        6. Shuffling, batching, and prefetching the dataset
+
+        The vocabulary is built from the complete file to ensure consistent
+        character mappings across all training batches. The CharMapping class
+        attributes are set as side effects and remain constant (vocab_size=109).
+
+        Example usage for incremental training:
+        - Batch 1: characters 0 to 100M
+        - Batch 2: characters 100M to 200M
+        - Batch 3: characters 200M to 300M, etc.
+    """
     text = open(path_to_file, 'r', encoding='utf-8').read()
     vocab = sorted(set(text))
 
@@ -164,6 +337,23 @@ def generate_dataset(start_index, stop_index, path_to_file = 'abstracts.txt'):
 
 
 def prepare_new_model(vocab_size):
+    """
+    Create and configure a new text generation model for training.
+
+    This function instantiates a CustomTraining model with the specified
+    vocabulary size and configures it with loss function, optimizer, and
+    custom learning rate.
+
+    Args:
+        vocab_size (int): Size of the character vocabulary
+
+    Returns:
+        CustomTraining: Configured model ready for training with:
+            - SparseCategoricalCrossentropy loss (from logits)
+            - Adam optimizer with custom learning rate
+            - Embedding dimension: EMBEDDING_DIM
+            - RNN units: RNN_UNITS
+    """
     model = CustomTraining(
                 vocab_size=vocab_size,
                 embedding_dim=EMBEDDING_DIM,

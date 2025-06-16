@@ -1,3 +1,14 @@
+
+/**
+ * Abstract Generator Frontend
+ *
+ * Provides the frontend interface for the abstract generator web app. Handles user
+ * input as seed prompts, communicates with the backend, and displays the generated academic
+ * article abstract with animations.
+ *
+ * @author Yahia Nassab
+ */
+
 "use strict"
 
 const flashRemovalTimeMilliseconds = 500;
@@ -5,6 +16,10 @@ let generateLock = false;
 
 const getDataAPIEndpoint = 'https://sghqbi8lll.execute-api.us-east-1.amazonaws.com/default/';
 
+/**
+ * Initializes the application when the DOM is fully loaded.
+ * Sets up event listeners for the generate button and seed input field.
+ */
 document.addEventListener('DOMContentLoaded', async () => {
     const generateButton = document.querySelector('#generate-button');
     const seedInput = document.querySelector('#seed-prompt');
@@ -14,9 +29,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             handleGenerate();
         }
     });
-
 })
 
+/**
+ * Handles the abstract generation process when triggered by user interaction.
+ *
+ * This function:
+ * - Validates user input
+ * - Makes API requests to the ML backend
+ * - Manages loading states and visual feedback
+ * - Displays generated abstracts with typewriter effect
+ * - Handles errors gracefully
+ *
+ * @returns {Promise<void>}
+ *
+ * @throws {Error} Network errors or API failures are caught and handled internally
+ *
+ */
 async function handleGenerate() {
     if (generateLock) { return }
 
@@ -58,6 +87,18 @@ async function handleGenerate() {
     }
 }
 
+/**
+ * Handles errors that occur during API requests or processing.
+ *
+ * Provides user-friendly error messaging and resets the UI to a clean state
+ * when generation fails.
+ *
+ * @param {Error|string} error - The error object or message to handle
+ *
+ * @example
+ * handleFetchError(new Error("Network timeout"));
+ * handleFetchError("Custom error message");
+ */
 function handleFetchError(error) {
     console.error(error);
     const responseElem = document.querySelector('#response-output');
@@ -67,6 +108,13 @@ function handleFetchError(error) {
     responseElem.innerText = 'There was an error making your request! Please try again later.';
 }
 
+/**
+ * Creates a visual flash effect on the response container background.
+ *
+ * Adds a CSS class for the flash animation and automatically removes it
+ * after the specified duration to provide visual feedback for user actions.
+ *
+ */
 function flashReponseBackground() {
     let backgroundFlashClass = 'response-background-flash';
     const responseElemContainer = document.querySelector('#response-output-container');
@@ -76,17 +124,33 @@ function flashReponseBackground() {
     }, flashRemovalTimeMilliseconds);
 }
 
+/**
+ * Displays text with a typewriter animation effect.
+ *
+ * Characters are revealed progressively to create an engaging user experience
+ * when displaying generated abstracts. HTML content is periodically re-rendered
+ * to ensure proper display of tags and special characters.
+ *
+ * @param {HTMLElement} element - The DOM element to display the text in
+ * @param {string} text - The text content to display with typewriter effect
+ * @param {number} [delayMilliseconds=5] - Delay between each character in milliseconds
+ *
+ */
 function typewriterEffect(element, text, delayMilliseconds = 5) {
     let i = 0;
     let responseSoFar = '';
 
+    /**
+     * Internal recursive function that handles character-by-character text display.
+     * Releases the generation lock when complete.
+     */
     function typeChunk() {
         if (i < text.length) {
             element.innerHTML += text[i];
             responseSoFar += text[i];
             i++;
+            // Periodically re-render HTML to ensure proper display
             if (i % 25 === 0 || i === text.length) {
-                // Every n characters, re-render HTML to ensure tags and special characters appear properly
                 element.innerHTML = responseSoFar;
             }
             setTimeout(typeChunk, delayMilliseconds);
@@ -97,4 +161,3 @@ function typewriterEffect(element, text, delayMilliseconds = 5) {
 
     typeChunk();
 }
-

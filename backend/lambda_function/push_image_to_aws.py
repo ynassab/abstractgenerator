@@ -8,6 +8,23 @@ IMAGE_NAME = 'lambda-layer'
 REPO_NAME = f'{AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/python/tensorflow-dependencies'
 
 def get_temporary_credentials():
+    """
+    Assume a temporary AWS IAM role for ECR access and set environment credentials.
+
+    Uses AWS STS (Security Token Service) to assume a temporary role with limited
+    permissions instead of using long-term access keys. This follows AWS security
+    best practices and provides time-limited access to resources.
+
+    Role Requirements:
+        - ECRAccessRole must exist in the target AWS account
+        - Role should have the minimum required permissions for ECR operations
+        - ECRUser profile must have sts:AssumeRole permission for ECRAccessRole
+
+    Notes:
+        - Credentials are temporary and will expire after 1 hour
+        - The ECRUser profile should be configured in ~/.aws/credentials or ~/.aws/config
+        - Role session name 'ecrSession' is used for AWS CloudTrail logging
+    """
     cmd = "aws sts assume-role --profile ECRUser " + \
     f"--role-arn arn:aws:iam::{AWS_ACCOUNT_ID}:role/ECRAccessRole " + \
     "--role-session-name ecrSession"
@@ -21,12 +38,35 @@ def get_temporary_credentials():
 
 
 def remove_temporary_credentials():
+    """
+    Remove temporary AWS credentials from environment variables for security cleanup.
+
+    This function removes the temporary AWS credentials that were set by get_temporary_credentials()
+    to prevent credential leakage and ensure clean environment state. It's designed to be called
+    in a finally block to guarantee cleanup even if errors occur during deployment.
+
+    Usage Pattern:
+        try:
+            get_temporary_credentials()
+            # Perform CLI operations
+        finally:
+            remove_temporary_credentials()  # Always cleanup
+    """
     for env_variable in ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN']:
         os.environ.pop(env_variable)
     return
 
 
 def push_container_to_aws():
+    """
+    Authenticate with ECR, tag the Docker image, and push it to the ECR repository.
+
+    Prerequisites:
+        - Docker daemon must be running
+        - Local Docker image must exist with name specified in IMAGE_NAME
+        - AWS credentials must be set in environment (via get_temporary_credentials)
+        - ECR repository must exist and be accessible with current credentials
+    """
     print('Pushing container to AWS...')
     login_cmd = "aws ecr get-login-password --region us-east-1 " + \
         "| docker login --username AWS --password-stdin " + \
