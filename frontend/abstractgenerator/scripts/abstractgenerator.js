@@ -12,7 +12,7 @@
 "use strict"
 
 const flashRemovalTimeMilliseconds = 500;
-let generateLock = false;
+let lockGeneration = false;
 
 const getDataAPIEndpoint = 'https://sghqbi8lll.execute-api.us-east-1.amazonaws.com/default/';
 
@@ -47,20 +47,21 @@ document.addEventListener('DOMContentLoaded', async () => {
  *
  */
 async function handleGenerate() {
-    if (generateLock) { return }
+    if (lockGeneration) { return }
 
     const responseElem = document.querySelector('#response-output');
     const loadingDotContainer = document.querySelector('#loading-dot-container');
     const seed = document.querySelector('#seed-prompt').value;
 
     flashReponseBackground();
+
     if (seed.trim() === '') {
         responseElem.innerText = 'Please enter a seed in the input field above!';
         return;
     } else {
         loadingDotContainer.style.display = 'flex';
         responseElem.innerText = '';
-        generateLock = true;
+        lockGeneration = true;
     }
 
     try {
@@ -155,7 +156,8 @@ function typewriterEffect(element, text, delayMilliseconds = 5) {
             }
             setTimeout(typeChunk, delayMilliseconds);
         } else {
-            generateLock = false;
+            // Release generation lock when animation completes
+            lockGeneration = false;
         }
     }
 
