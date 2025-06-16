@@ -78,8 +78,8 @@ def push_container_to_aws():
 
 
 if __name__ == "__main__":
-    get_temporary_credentials()
     try:
+        get_temporary_credentials()
         push_container_to_aws()
     finally:
         remove_temporary_credentials()
