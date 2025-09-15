@@ -53,7 +53,7 @@ def remove_temporary_credentials():
             remove_temporary_credentials()  # Always cleanup
     """
     for env_variable in ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN']:
-        os.environ.pop(env_variable)
+        os.environ.pop(env_variable, None)
     return
 
 
@@ -77,11 +77,16 @@ def push_container_to_aws():
     return
 
 
-if __name__ == "__main__":
+def main():
+    """Main execution function that coordinates the image upload process."""
     try:
         get_temporary_credentials()
         push_container_to_aws()
     finally:
         remove_temporary_credentials()
     print('Done.')
+
+
+if __name__ == "__main__":
+    main()
 

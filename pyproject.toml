@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=80.9.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "abstractgenerator"
+description = "Deep learning algorithm to generate abstracts for academic articles."
+authors = [
+    {name = "Yahia Nassab"}
+]
+classifiers = [
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Only",
+]
+requires-python = "==3.10.*"
+dynamic = ["version"]
+dependencies = [
+    "keras==2.9.*",
+    "numpy==1.22.*",
+]
+
+[project.optional-dependencies]
+testing = [
+    "pytest==7.4.2",
+    "pytest-cov==4.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["backend*"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=backend --cov-report=term-missing"
+testpaths = [
+    "tests/backend",
+]

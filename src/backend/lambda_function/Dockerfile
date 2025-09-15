@@ -1,6 +1,6 @@
 # Adapted from https://docs.aws.amazon.com/lambda/latest/dg/python-image.html
 
-ARG BUILD_DIR="build"
+ARG BUILD_DIR="lambda_build"
 ARG RUNTIME_VERSION="3.10"
 ARG TF_WHEEL_NAME="tensorflow-2.9.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
 

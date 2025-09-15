@@ -163,3 +163,27 @@ function typewriterEffect(element, text, delayMilliseconds = 5) {
 
     typeChunk();
 }
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        handleGenerate,
+        handleFetchError,
+        flashReponseBackground,
+        typewriterEffect,
+        // State management for testing
+        getState: () => ({
+            lockGeneration,
+            flashRemovalTimeMilliseconds,
+            getDataAPIEndpoint
+        }),
+        setState: (state) => {
+            if (state.lockGeneration !== undefined) lockGeneration = state.lockGeneration;
+        },
+        // Constants for testing
+        constants: {
+            flashRemovalTimeMilliseconds,
+            getDataAPIEndpoint
+        }
+    };
+}

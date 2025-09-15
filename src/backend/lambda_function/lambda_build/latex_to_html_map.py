@@ -1,4 +1,7 @@
 latex_to_html_map = {
+    # Priority symbols
+    r'\\infty': '&infin;',          # Infinity (must come before r'\\in')
+
     # Lowercase Greek letters
     r'\\alpha': '&alpha;',
     r'\\beta': '&beta;',
@@ -105,7 +108,6 @@ latex_to_html_map = {
     r'\\propto': '&prop;',         # Proportional to
 
     # Miscellaneous symbols
-    r'\\infty': '&infin;',          # Infinity
     r'\\forall': '&forall;',        # For all
     r'\\Re': '&real;',              # Real part symbol
     r'\\Im': '&image;',              # Imaginary part symbol

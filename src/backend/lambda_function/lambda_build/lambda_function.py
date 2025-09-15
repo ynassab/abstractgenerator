@@ -10,8 +10,8 @@ generates text that mimics the style and structure of scholarly writing.
 
 import json
 import re
-import inference_utils
-from latex_to_html_map import latex_to_html_map
+from . import inference_utils
+from .latex_to_html_map import latex_to_html_map
 
 # Character vocabulary used during model training
 VOCABULARY = ['[UNK]', ' ', '!', '"', '#', '$', '%', '&', "'",
@@ -150,7 +150,6 @@ def latex_to_html(latex_string):
     html_text = re.sub(r'_{([^}]+)}', r'<sub>\1</sub>', html_text)  # Subscripts with braces
     html_text = re.sub(r'\^([^{}\s]*)\s', r'<sup>\1</sup> ', html_text)  # Superscripts without braces
     html_text = re.sub(r'_([^{}\s]*)\s', r'<sub>\1</sub> ', html_text)  # Subscripts without braces
-    html_text = html_text.replace('\n', '<br>')  # Line breaks to <br> tags
 
     # Remove standalone dollar signs
     html_text = re.sub(r'\$', '', html_text, 1)
@@ -158,6 +157,11 @@ def latex_to_html(latex_string):
     # Convert math symbols to HTML codes
     for latex, html in latex_to_html_map.items():
         html_text = re.sub(latex, html, html_text)
+
+    # Replace newlines with <br> tags
+    html_text = html_text.replace(r'\n', '<br>')
+    html_text = html_text.replace('\\newline', '<br>')  # LaTeX format
+    html_text = html_text.replace(r'\\', '<br>')  # Alternative LaTeX format; must be performed last
 
     return html_text
 

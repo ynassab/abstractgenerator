@@ -163,7 +163,7 @@ class CustomTraining(MyModel):
 
     This class extends MyModel to provide a custom training step that manually
     computes gradients and applies optimizer updates. Inherits all functionality
-    from MyModel while allowing for custom training behavior.
+    from MyModel while allowing for custom training behaviour.
     """
 
     @tf.function
