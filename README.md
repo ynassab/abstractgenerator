@@ -1,3 +1,6 @@
+![Backend Tests](https://github.com/ynassab/abstractgenerator/actions/workflows/backend_tests.yml/badge.svg)
+![Frontend Tests](https://github.com/ynassab/abstractgenerator/actions/workflows/frontend_tests.yml/badge.svg)
+
 # Abstract Generator
 A machine learning model trained to generate the text of academic abstracts, hosted at https://yahianassab.com/abstractgenerator.
 
