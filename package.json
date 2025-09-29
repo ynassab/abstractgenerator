@@ -1,7 +1,7 @@
 {
   "name": "abstractgenerator-frontend",
   "version": "1.0.0",
-  "description": "Deep learning algorithm to generate abstracts for academic articles",
+  "description": "Deep learning algorithm to generate abstracts for academic articles.",
   "main": "src/frontend/abstractgenerator/scripts/abstractgenerator.js",
   "scripts": {
     "test": "jest",
