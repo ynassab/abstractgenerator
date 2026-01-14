@@ -11,7 +11,7 @@ The TensorFlow wheel used in this project can be downloaded from PyPI: https://p
 
 ## Model Design
 
-The model uses a **Gated Recurrent Unit (GRU)** architecture with ~700,000 trainable parameters, comprised of a 500-character scanning window, each with a 256-dimension embedding and 1024-dimension GRU, in addition to a 109-dimension output layer matching the vobulary size.
+The model uses a **Gated Recurrent Unit (GRU)** architecture with ~700,000 trainable parameters, comprised of a 500-character scanning window, each with a 256-dimension embedding and 1024-dimension GRU, in addition to a 109-dimension output layer matching the vocabulary size.
 
 The purpose of this project largely being a learning exercise for the author is the primary reason behind the choice of GRU over other architectures (e.g., Transformer) &mdash; it consumes relatively few computing resources while offering reasonable ability to capture medium-range dependencies, appropriate for paragraph-length academic abstracts.
 
