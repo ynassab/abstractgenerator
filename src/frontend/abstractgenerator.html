@@ -33,23 +33,30 @@
     </div>
     <main class="phase-in">
         <h1 id="title">Abstract Generator</h1>
-        <div id="seed-prompt-container" class="phase-in-delay-1">
-            <input id="seed-prompt" placeholder="Enter seed here...">
-            <button id="generate-button">
-                <!-- A "send" icon appears on mobile instead of the button label -->
-                <span id="generate-button-icon-container">
-                    <img id="generate-button-icon" src="index/pictures/icons/send.svg" />
-                </span>
-                <span id="generate-button-label">Generate</span>
-            </button>
-        </div>
-        <div id="response-output-container">
-            <div id="loading-dot-container">
-                <div class="loading-dot" id="loading-dot-1"></div>
-                <div class="loading-dot" id="loading-dot-2"></div>
-                <div class="loading-dot" id="loading-dot-3"></div>
+        <div id="loading-screen-container" class="phase-in-delay-1">
+            <div id="loading-screen-text-container">
+                <p id="loading-screen-text">Awakening from deep sleep...</p>
             </div>
-            <p id="response-output"></p>
+        </div>
+        <div id="application-container">
+            <div id="seed-prompt-container" class="phase-in-delay-2">
+                <input id="seed-prompt" placeholder="Enter seed here...">
+                <button id="generate-button">
+                    <!-- A "send" icon appears on mobile instead of the button label -->
+                    <span id="generate-button-icon-container">
+                        <img id="generate-button-icon" src="index/pictures/icons/send.svg" />
+                    </span>
+                    <span id="generate-button-label">Generate</span>
+                </button>
+            </div>
+            <div id="response-output-container" class="phase-in-delay-1">
+                <div id="loading-dot-container">
+                    <div class="loading-dot" id="loading-dot-1"></div>
+                    <div class="loading-dot" id="loading-dot-2"></div>
+                    <div class="loading-dot" id="loading-dot-3"></div>
+                </div>
+                <p id="response-output"></p>
+            </div>
         </div>
     </main>
 </body>

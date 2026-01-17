@@ -76,6 +76,26 @@ main {
     margin-left: var(--left-margin);
 }
 
+#loading-screen-container {
+    display: block;  /* Convert to none in automation */
+    margin: 0;
+    padding: 0;
+}
+
+#loading-screen-text-container {
+    padding: 1rem;
+}
+
+#loading-screen-text {
+    font-size: clamp(calc(1.0*var(--default-font-size)), 2.5vw, calc(1.5*var(--default-font-size)));
+}
+
+#application-container {
+    display: none;  /* Convert to block in automation */
+    margin: 0;
+    padding: 0;
+}
+
 #title {
     margin: 3vh 0;
     font-size: clamp(calc(1.15*var(--default-font-size)), 3.8vw, calc(2*var(--default-font-size)));
