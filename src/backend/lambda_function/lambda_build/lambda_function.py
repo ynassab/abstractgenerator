@@ -45,7 +45,7 @@ def lambda_handler(event, context):
                              "wakeUp": true
                          }
                       }
-                      Expected structure (for all usage within 15-minutes after a Lambda warm-up call)
+                      Expected structure (for all usage within 15 minutes after a Lambda warm-up call):
                       {
                          "body": {
                              "seed": "initial text to start generation",
