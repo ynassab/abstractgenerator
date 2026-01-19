@@ -19,7 +19,7 @@ class TestLambdaHandler:
         response = lambda_function.lambda_handler(event, self.mock_context)
 
         assert response['statusCode'] == 200
-        assert json.loads(response['body']) == 'Hello from Lambda!'
+        assert json.loads(response['body'])['message'] == 'Hello from Lambda!'
 
     def test_lambda_handler_wake_up_call_json_string_body(self):
         """Test lambda handler with wake-up call when body is JSON string."""
@@ -30,7 +30,7 @@ class TestLambdaHandler:
         response = lambda_function.lambda_handler(event, self.mock_context)
 
         assert response['statusCode'] == 200
-        assert json.loads(response['body']) == 'Hello from Lambda!'
+        assert json.loads(response['body'])['message'] == 'Hello from Lambda!'
 
     @mock.patch('backend.lambda_function.lambda_build.inference_utils.prepare_new_model')
     @mock.patch('backend.lambda_function.lambda_build.lambda_function.latex_to_html')

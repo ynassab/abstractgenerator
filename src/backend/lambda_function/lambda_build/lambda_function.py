@@ -86,7 +86,7 @@ def lambda_handler(event, context):
         if 'wakeUp' in data:
             return {
                 'statusCode': 200,
-                'body': json.dumps('Hello from Lambda!'),
+                'body': json.dumps({'message': 'Hello from Lambda!'}),
             }
 
         seed = data['seed']
