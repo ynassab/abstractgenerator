@@ -13,6 +13,11 @@ function loadModuleWithDOM() {
 
 beforeEach(() => {
     document.body.innerHTML = `
+        <div id="loading-screen-container" class="phase-in-delay-1">
+            <div id="loading-screen-text-container">
+                <p id="loading-screen-text">Awakening from deep sleep...</p>
+            </div>
+        </div>
         <div id="seed-prompt-container">
             <input id="seed-prompt" placeholder="Enter seed here..." value="">
             <button id="generate-button">Generate</button>
