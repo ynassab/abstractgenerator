@@ -43,33 +43,46 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function awakenFromDeepSleep() {
     const loadingScreenContainer = document.querySelector('#loading-screen-container');
     const applicationContainer = document.querySelector('#application-container');
+    try {
+        const response = await fetch(getDataAPIEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                wakeUp: 'Hello from Abstract Generator frontend!',
+            })
+        });
 
-    const response = await fetch(getDataAPIEndpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            wakeUp: 'Hello from Abstract Generator frontend!',
-        })
-    });
-    const { output } = await response.json();
-
-    if (!response.ok) {
-        console.error(`Error: response status of ${response.status}\n${JSON.stringify(output, null, 2)}`);
-        const loadingScreenText = document.querySelector('#loading-screen-text');
-        const loadingScreenContainer = document.querySelector('#loading-screen-container');
-
-        // Change loading screen message with a vanish and phase-in effect
-        loadingScreenContainer.classList.remove('show');
-        loadingScreenText.innerText = 'Unable to connect to the server. Please try again later.';
-        setTimeout(() => {
-            loadingScreenContainer.classList.add('show');
-        }, 100);
-    } else {
-        loadingScreenContainer.style.display = 'none';
-        applicationContainer.style.display = 'block';
+        if (response.ok) {
+            loadingScreenContainer.style.display = 'none';
+            applicationContainer.style.display = 'block';
+        } else {
+            const { output } = await response.json();
+            console.error(`Error: response status of ${response.status}\n${JSON.stringify(output, null, 2)}`);
+            showLoadingScreenError();
+        }
+    } catch (error) {
+        console.error('Fetch failed:', error);
+        showLoadingScreenError();
     }
+}
+
+/**
+ * Displays an error message on the loading screen.
+ *
+ * Updates the loading screen text to inform the user that the server connection failed.
+ */
+function showLoadingScreenError() {
+    const loadingScreenText = document.querySelector('#loading-screen-text');
+    const loadingScreenContainer = document.querySelector('#loading-screen-container');
+
+    // Change loading screen message with a vanish and phase-in effect
+    loadingScreenContainer.classList.remove('show');
+    loadingScreenText.innerText = 'Unable to connect to the server. Please try again later.';
+    setTimeout(() => {
+        loadingScreenContainer.classList.add('show');
+    }, 100);
 }
 
 /**
